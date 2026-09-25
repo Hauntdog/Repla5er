@@ -1,0 +1,13 @@
+[Unit]
+Description=REPLA5ER - Terminal & Web Text & Number Replacer Daemon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/kali/Repla5er
+ExecStart=/usr/bin/python3 /home/kali/Repla5er/replacer.py --web --port 5000
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ REPLA5ER - Interactive Text & Number Replacer Web App</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --bg-input: #0d1322;
+            --border-color: rgba(56, 189, 248, 0.15);
+            --border-hover: rgba(56, 189, 248, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #38bdf8;
+            --accent-green: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --glow-cyan: rgba(56, 189, 248, 0.25);
+            --glow-green: rgba(16, 185, 129, 0.25);
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        header {
+            max-width: 1300px;
+            margin: 0 auto 20px auto;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 15px var(--glow-cyan);
+            letter-spacing: -1px;
+        }
+
+        .brand-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            font-family: var(--font-mono);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+        }
+
+        /* CONTROLS CARD */
+        .controls-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hint-badge {
+            font-size: 0.7rem;
+            color: var(--accent-purple);
+            font-family: var(--font-mono);
+        }
+
+        .input-field {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px var(--glow-cyan);
+        }
+
+        .input-field.replace-field:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 15px var(--glow-green);
+        }
+
+        /* OPTIONS ROW */
+        .options-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-label input[type="checkbox"] {
+            accent-color: var(--accent-cyan);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .range-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .range-inputs input {
+            width: 80px;
+            padding: 6px 10px;
+        }
+
+        /* ACTIONS BAR */
+        .actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), #0284c7);
+            color: #090d16;
+            box-shadow: 0 4px 15px var(--glow-cyan);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--glow-cyan);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: #090d16;
+            box-shadow: 0 4px 15px var(--glow-green);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--glow-green);
+        }
+
+        /* WORKSPACE PANES */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+            min-height: 420px;
+        }
+
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pane {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .pane-header {
+            padding: 12px 20px;
+            background: rgba(13, 19, 34, 0.6);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pane-title {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pane-title.in { color: var(--accent-cyan); }
+        .pane-title.out { color: var(--accent-green); }
+
+        .editor-textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 350px;
+            background: var(--bg-input);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            padding: 15px 20px;
+            border: none;
+            outline: none;
+            resize: none;
+            line-height: 1.6;
+        }
+
+        .editor-textarea.out-area {
+            color: var(--accent-green);
+            background: #08111e;
+        }
+
+        /* FOOTER / STATUS */
+        footer {
+            max-width: 1300px;
+            margin: 20px auto 0 auto;
+            width: 100%;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .count-badge {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-cyan);
+            color: var(--text-main);
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="brand">
+            <div class="brand-logo">⚡ REPLA5ER</div>
+            <div class="brand-badge">Web Edition</div>
+        </div>
+        <div class="server-status">
+            <div class="status-dot"></div>
+            <span>LIVE REST API ONLINE</span>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTENT -->
+    <main>
+        <!-- CONTROLS CARD -->
+        <div class="controls-card">
+            <div class="controls-grid">
+                <div class="input-group">
+                    <label for="findVal">
+                        Find (Word or Number)
+                    </label>
+                    <input type="text" id="findVal" class="input-field" value="42" placeholder="e.g. OFFLINE, 42, 3.14">
+                </div>
+                <div class="input-group">
+                    <label for="replaceVal">
+                        Replace (Word, Number, or Math)
+                        <span class="hint-badge">Math: +10, -5, *2, /2</span>
+                    </label>
+                    <input type="text" id="replaceVal" class="input-field replace-field" value="99" placeholder="e.g. ONLINE, 99, +10">
+                </div>
+            </div>
+
+            <!-- OPTIONS ROW -->
+            <div class="options-row">
+                <label class="toggle-label">
+                    <input type="checkbox" id="chkWhole" checked>
+                    <span>Whole words & numbers only (-w)</span>
+                </label>
+
+                <label class="toggle-label">
+                    <input type="checkbox" id="chkIgnoreCase">
+                    <span>Ignore case (-i)</span>
+                </label>
+
+                <label class="toggle-label">
+                    <input type="checkbox" id="chkMath">
+                    <span>Math Mode (Apply formula to ALL numbers)</span>
+                </label>
+
+                <div class="range-inputs">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="chkRange">
+                        <span>Range Filter:</span>
+                    </label>
+                    <input type="number" id="numMin" class="input-field" placeholder="Min">
+                    <span>to</span>
+                    <input type="number" id="numMax" class="input-field" placeholder="Max">
+                </div>
+            </div>
+
+            <!-- ACTIONS BAR -->
+            <div class="actions-bar">
+                <button class="btn btn-primary" onclick="copyOutput()">📋 Copy Output</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📁 Load Text File</button>
+                <input type="file" id="fileInput" style="display:none" onchange="loadFile(event)">
+                <button class="btn btn-success" onclick="downloadOutput()">💾 Download Result</button>
+                <button class="btn btn-secondary" onclick="clearText()">🧹 Clear Input</button>
+            </div>
+        </div>
+
+        <!-- WORKSPACE PANES -->
+        <div class="workspace">
+            <!-- INPUT PANE -->
+            <div class="pane">
+                <div class="pane-header">
+                    <div class="pane-title in">📥 INPUT TEXT / STDIN</div>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);" id="inStats">0 chars</span>
+                </div>
+                <textarea id="txtInput" class="editor-textarea" placeholder="Paste or type text containing words or numbers here..."></textarea>
+            </div>
+
+            <!-- OUTPUT PANE -->
+            <div class="pane">
+                <div class="pane-header">
+                    <div class="pane-title out">📤 TRANSFORMED OUTPUT</div>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);" id="outStats">0 chars</span>
+                </div>
+                <textarea id="txtOutput" class="editor-textarea out-area" readonly placeholder="Live transformed output will appear here..."></textarea>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div>REPLA5ER High-Performance Text & Number Engine</div>
+        <div>Total Replacements: <span id="lblCount" class="count-badge">0</span></div>
+    </footer>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">✨ Output copied to clipboard!</div>
+
+    <script>
+        // Sample default text
+        const sampleText = `Sample Data Log:
+Server 1: status OFFLINE, port 8080, latency 42ms, active users: 100
+Server 2: status ONLINE, port 8081, latency 42ms, active users: 250
+Global multiplier factor: 3.14159
+Target id 42 in line 4242.
+An apple and two apples.`;
+
+        const txtInput = document.getElementById('txtInput');
+        const txtOutput = document.getElementById('txtOutput');
+        const findVal = document.getElementById('findVal');
+        const replaceVal = document.getElementById('replaceVal');
+        const chkWhole = document.getElementById('chkWhole');
+        const chkIgnoreCase = document.getElementById('chkIgnoreCase');
+        const chkMath = document.getElementById('chkMath');
+        const chkRange = document.getElementById('chkRange');
+        const numMin = document.getElementById('numMin');
+        const numMax = document.getElementById('numMax');
+        const lblCount = document.getElementById('lblCount');
+
+        txtInput.value = sampleText;
+
+        // Perform transformation via API or client-side fallback
+        async function updateTransform() {
+            const text = txtInput.value;
+            const find = findVal.value;
+            const replace = replaceVal.value;
+            const whole = chkWhole.checked;
+            const ignoreCase = chkIgnoreCase ? chkIgnoreCase.checked : false;
+            const isMath = chkMath.checked;
+            const useRange = chkRange.checked;
+            const minV = useRange && numMin.value !== "" ? parseFloat(numMin.value) : null;
+            const maxV = useRange && numMax.value !== "" ? parseFloat(numMax.value) : null;
+
+            document.getElementById('inStats').textContent = `${text.length} chars`;
+
+            try {
+                const response = await fetch('/api/replace', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        find: find,
+                        replace: replace,
+                        whole_word: whole,
+                        ignore_case: ignoreCase,
+                        math_mode: isMath,
+                        min_val: minV,
+                        max_val: maxV
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    txtOutput.value = data.transformed;
+                    lblCount.textContent = data.count;
+                    document.getElementById('outStats').textContent = `${data.transformed.length} chars`;
+                    return;
+                }
+            } catch (err) {
+                // Fallback to local transformation logic if API call fails
+                console.warn('Using client-side fallback transformation engine:', err);
+            }
+
+            // Local fallback logic
+            let count = 0;
+            let result = text;
+            if (find || isMath) {
+                try {
+                    let regex;
+                    const flags = ignoreCase ? 'gi' : 'g';
+                    if (isMath) {
+                        regex = /(?<![\d.])(-?\d+(?:\.\d+)?)(?![\d.])/g;
+                        result = text.replace(regex, (match) => {
+                            let n = parseFloat(match);
+                            if (minV !== null && n < minV) return match;
+                            if (maxV !== null && n > maxV) return match;
+                            count++;
+                            if (replace.startsWith('+')) return (n + parseFloat(replace.slice(1))).toString();
+                            if (replace.startsWith('-')) return (n - parseFloat(replace.slice(1))).toString();
+                            if (replace.startsWith('*')) return (n * parseFloat(replace.slice(1))).toString();
+                            if (replace.startsWith('/')) return (n / parseFloat(replace.slice(1))).toString();
+                            return replace || match;
+                        });
+                    } else if (find) {
+                        const esc = find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        let patternStr;
+                        if (whole) {
+                            if (/^-?\d+(?:\.\d+)?$/.test(find)) {
+                                patternStr = `(?<![\\d.])${esc}(?![\\d.])`;
+                            } else {
+                                const prefix = /^\w/.test(find) ? '(?<!\\w)' : '';
+                                const suffix = /\w$/.test(find) ? '(?!\\w)' : '';
+                                patternStr = `${prefix}${esc}${suffix}`;
+                            }
+                        } else {
+                            patternStr = esc;
+                        }
+                        regex = new RegExp(patternStr, flags);
+                        result = text.replace(regex, (match) => {
+                            count++;
+                            if (replace.startsWith('+') || replace.startsWith('-') || replace.startsWith('*') || replace.startsWith('/')) {
+                                const num = parseFloat(match);
+                                if (!isNaN(num)) {
+                                    let op = replace.trim();
+                                    if (op.startsWith('+')) return (num + parseFloat(op.slice(1))).toString();
+                                    if (op.startsWith('-')) return (num - parseFloat(op.slice(1))).toString();
+                                    if (op.startsWith('*')) return (num * parseFloat(op.slice(1))).toString();
+                                    if (op.startsWith('/')) return (num / parseFloat(op.slice(1))).toString();
+                                }
+                            }
+                            return replace;
+                        });
+                    }
+                } catch(e) {}
+            }
+            txtOutput.value = result;
+            lblCount.textContent = count;
+            document.getElementById('outStats').textContent = `${result.length} chars`;
+        }
+
+        // Event listeners
+        [txtInput, findVal, replaceVal, numMin, numMax].forEach(el => el.addEventListener('input', updateTransform));
+        [chkWhole, chkIgnoreCase, chkMath, chkRange].forEach(el => el.addEventListener('change', updateTransform));
+
+        function copyOutput() {
+            navigator.clipboard.writeText(txtOutput.value);
+            showToast('✨ Transformed output copied to clipboard!');
+        }
+
+        function clearText() {
+            txtInput.value = '';
+            updateTransform();
+        }
+
+        function loadFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    txtInput.value = evt.target.result;
+                    updateTransform();
+                    showToast(`📁 File loaded: ${file.name}`);
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function downloadOutput() {
+            const blob = new Blob([txtOutput.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'replaced_output.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('💾 Output file downloaded!');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initial run
+        updateTransform();
+    </script>
+</body>
+</html>
